@@ -10,26 +10,25 @@ import java.util.Objects;
 public class CompanyInfo implements Serializable {
 
     @Id
+    @Column(name = "company_code")
     private String companyCode;
 
     private String name;
     private String country;
-    private String postalCode;
-    private double pricePerDistanceUnit;
+    private String postal_code;
+    private double price_per_distance_unit;
 
-    // Default constructor for JPA
+    //default constructor for JPA
     protected CompanyInfo() {}
 
-    // Constructor
-    public CompanyInfo(String companyCode, String name, String country, String postalCode, double pricePerDistanceUnit) {
+    public CompanyInfo(String companyCode, String name, String country, String postal_code, double price_per_distance_unit) {
         this.companyCode = companyCode;
         this.name = name;
         this.country = country;
-        this.postalCode = postalCode;
-        this.pricePerDistanceUnit = pricePerDistanceUnit;
+        this.postal_code = postal_code;
+        this.price_per_distance_unit = price_per_distance_unit;
     }
 
-    // Getters
     public String getCompanyCode() {
         return companyCode;
     }
@@ -43,11 +42,11 @@ public class CompanyInfo implements Serializable {
     }
 
     public String getPostalCode() {
-        return postalCode;
+        return postal_code;
     }
 
     public double getPricePerDistanceUnit() {
-        return pricePerDistanceUnit;
+        return price_per_distance_unit;
     }
 
     @Override

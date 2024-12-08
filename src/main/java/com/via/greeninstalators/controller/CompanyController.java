@@ -3,7 +3,9 @@ package com.via.greeninstalators.controller;
 import com.via.greeninstalators.model.CompanyInfo;
 import com.via.greeninstalators.model.CompanyInstallation;
 import com.via.greeninstalators.service.CompanyService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,10 +19,15 @@ public class CompanyController {
 
     @Autowired
     public CompanyController(CompanyService companyService) {
+
         this.companyService = companyService;
     }
 
-    // Endpoint to save CompanyInstallation
+    @GetMapping("/home")
+    public ResponseEntity<String> home() {
+        return ResponseEntity.ok("Success");
+    }
+
     @PostMapping("/saveInstallation")
     public String createInstallation(@RequestBody CompanyInstallation companyInstallation) {
         CompanyInstallation savedInstallation = companyService.saveCompanyInstallation(companyInstallation);
@@ -31,7 +38,24 @@ public class CompanyController {
         }
     }
 
-    // Endpoint to save CompanyInfo
+    @PostMapping("/addInstallation")
+    public ResponseEntity<?> addInstallation(@RequestBody CompanyInstallation installation, HttpSession session) {
+        // Check if a company is logged in
+        String companyCode = (String) session.getAttribute("companyCode");
+
+        if (companyCode == null) {
+            return ResponseEntity.status(401).body("You must be logged in as a company to perform this action.");
+        }
+
+        // Set the company code for the installation
+        installation.setCompany_code(companyCode);
+
+        // Save the installation
+        companyService.saveCompanyInstallation(installation);
+
+        return ResponseEntity.ok("Installation added successfully");
+    }
+
     @PostMapping("/saveInfo")
     public String createInfo(@RequestBody CompanyInfo companyInfo) {
         CompanyInfo savedInfo = companyService.saveCompanyInfo(companyInfo);
@@ -42,19 +66,16 @@ public class CompanyController {
         }
     }
 
-    // Endpoint to get CompanyInfo by company code
     @GetMapping("/info/{companyCode}")
     public Optional<CompanyInfo> getCompanyInfo(@PathVariable String companyCode) {
         return companyService.getCompanyInfoByCode(companyCode);
     }
 
-    // Endpoint to get all installations by company code
     @GetMapping("/installations/{companyCode}")
     public List<CompanyInstallation> getInstallationsByCompanyCode(@PathVariable String companyCode) {
         return companyService.getInstallationsByCompanyCode(companyCode);
     }
 
-    // Endpoint to get installations by type
     @GetMapping("/installations/type/{type}")
     public List<CompanyInstallation> getInstallationsByType(@PathVariable String type) {
         return companyService.getInstallationsByType(type);
