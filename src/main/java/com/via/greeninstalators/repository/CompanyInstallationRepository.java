@@ -10,12 +10,7 @@ import java.util.List;
 
 @Repository
 public interface CompanyInstallationRepository extends JpaRepository<CompanyInstallation, CompanyInstallation> {
-
-    List<CompanyInstallation> findByCompanyCode(String companyCode);
-
-    List<CompanyInstallation> findByType(String type);
-
-    @Query("SELECT ci FROM CompanyInstallation ci WHERE ci.companyCode = :companyCode")
+    @Query("SELECT ci FROM CompanyInstallation ci WHERE ci.company_code = :companyCode")
     List<CompanyInstallation> getInstallationsByCompanyCode(@Param("companyCode") String companyCode);
 
     @Query("SELECT ci FROM CompanyInstallation ci WHERE ci.type = :type")
