@@ -20,7 +20,7 @@ public class CompanyInstallation implements Serializable {
     private int setting_up_time_per_unit;
     private double price_per_unit;
 
-    //constructor for JPA
+    //for JPA
     protected CompanyInstallation() {
     }
 

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -21,21 +22,6 @@ public class CompanyController {
     public CompanyController(CompanyService companyService) {
 
         this.companyService = companyService;
-    }
-
-    @GetMapping("/home")
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("Success");
-    }
-
-    @PostMapping("/saveInstallation")
-    public String createInstallation(@RequestBody CompanyInstallation companyInstallation) {
-        CompanyInstallation savedInstallation = companyService.saveCompanyInstallation(companyInstallation);
-        if (savedInstallation != null) {
-            return "CompanyInstallation saved successfully!";
-        } else {
-            return "Failed to save CompanyInstallation.";
-        }
     }
 
     @PostMapping("/addInstallation")
@@ -53,7 +39,18 @@ public class CompanyController {
         //Save the installation
         companyService.saveCompanyInstallation(installation);
 
-        return ResponseEntity.ok("Installation added successfully");
+        return ResponseEntity.ok(Map.of("message", "Installation added successfully"));
+    }
+
+    /* Endpoint used for debugging
+    @PostMapping("/saveInstallation")
+    public String createInstallation(@RequestBody CompanyInstallation companyInstallation) {
+        CompanyInstallation savedInstallation = companyService.saveCompanyInstallation(companyInstallation);
+        if (savedInstallation != null) {
+            return "CompanyInstallation saved successfully!";
+        } else {
+            return "Failed to save CompanyInstallation.";
+        }
     }
 
     @PostMapping("/saveInfo")
@@ -79,5 +76,5 @@ public class CompanyController {
     @GetMapping("/installations/type/{type}")
     public List<CompanyInstallation> getInstallationsByType(@PathVariable String type) {
         return companyService.getInstallationsByType(type);
-    }
+    }*/
 }

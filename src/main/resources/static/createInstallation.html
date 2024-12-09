@@ -20,6 +20,10 @@
     </style>
 </head>
 <body>
+<div class="logout-container">
+    <button id="logoutButton">Logout</button>
+</div>
+
 <h1>Create Installation</h1>
 <form id="installationForm">
     <label for="type">Type:</label>
@@ -38,6 +42,27 @@
 </form>
 
 <script>
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+        try {
+            const response = await fetch("http://localhost:8080/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                alert("Logout successful");
+                // Redirect to the login page
+                window.location.href = "login.html";
+            } else {
+                alert("Failed to logout. Please try again.");
+            }
+        } catch (err) {
+            console.error("Error during logout:", err);
+            alert("An error occurred. Please try again later.");
+        }
+    });
+
+
     document.getElementById("installationForm").addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -59,8 +84,8 @@
 
             if (response.ok) {
                 const data = await response.json();
-                alert("Installation added successfully!");
-                // Optionally clear the form after successful submission
+                alert("Installation added successfully");
+                //clear the form after success
                 document.getElementById("installationForm").reset();
             } else {
                 const error = await response.json();
