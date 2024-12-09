@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -23,11 +24,25 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    @GetMapping("/home")
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("Success");
+    @PostMapping("/addInstallation")
+    public ResponseEntity<?> addInstallation(@RequestBody CompanyInstallation installation, HttpSession session) {
+        //Check if a company is logged in
+        String companyCode = (String) session.getAttribute("companyCode");
+
+        if (companyCode == null) {
+            return ResponseEntity.status(401).body("You must be logged in as a company to perform this action.");
+        }
+
+        //Set the company code for the installation
+        installation.setCompany_code(companyCode);
+
+        //Save the installation
+        companyService.saveCompanyInstallation(installation);
+
+        return ResponseEntity.ok(Map.of("message", "Installation added successfully"));
     }
 
+    /* Endpoint used for debugging
     @PostMapping("/saveInstallation")
     public String createInstallation(@RequestBody CompanyInstallation companyInstallation) {
         CompanyInstallation savedInstallation = companyService.saveCompanyInstallation(companyInstallation);
@@ -36,24 +51,6 @@ public class CompanyController {
         } else {
             return "Failed to save CompanyInstallation.";
         }
-    }
-
-    @PostMapping("/addInstallation")
-    public ResponseEntity<?> addInstallation(@RequestBody CompanyInstallation installation, HttpSession session) {
-        // Check if a company is logged in
-        String companyCode = (String) session.getAttribute("companyCode");
-
-        if (companyCode == null) {
-            return ResponseEntity.status(401).body("You must be logged in as a company to perform this action.");
-        }
-
-        // Set the company code for the installation
-        installation.setCompany_code(companyCode);
-
-        // Save the installation
-        companyService.saveCompanyInstallation(installation);
-
-        return ResponseEntity.ok("Installation added successfully");
     }
 
     @PostMapping("/saveInfo")
@@ -79,5 +76,5 @@ public class CompanyController {
     @GetMapping("/installations/type/{type}")
     public List<CompanyInstallation> getInstallationsByType(@PathVariable String type) {
         return companyService.getInstallationsByType(type);
-    }
+    }*/
 }
