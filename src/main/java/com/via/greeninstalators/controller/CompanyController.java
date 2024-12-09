@@ -40,17 +40,17 @@ public class CompanyController {
 
     @PostMapping("/addInstallation")
     public ResponseEntity<?> addInstallation(@RequestBody CompanyInstallation installation, HttpSession session) {
-        // Check if a company is logged in
+        //Check if a company is logged in
         String companyCode = (String) session.getAttribute("companyCode");
 
         if (companyCode == null) {
             return ResponseEntity.status(401).body("You must be logged in as a company to perform this action.");
         }
 
-        // Set the company code for the installation
+        //Set the company code for the installation
         installation.setCompany_code(companyCode);
 
-        // Save the installation
+        //Save the installation
         companyService.saveCompanyInstallation(installation);
 
         return ResponseEntity.ok("Installation added successfully");

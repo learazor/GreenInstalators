@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Installation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        form {
+            max-width: 400px;
+            margin: auto;
+        }
+        label, input, button {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>Create Installation</h1>
+<form id="installationForm">
+    <label for="type">Type:</label>
+    <input type="text" id="type" name="type" required />
+
+    <label for="output">Output (kW):</label>
+    <input type="number" id="output" name="output" required />
+
+    <label for="settingUpTimePerUnit">Setting Up Time Per Unit (work days):</label>
+    <input type="number" id="settingUpTimePerUnit" name="settingUpTimePerUnit" required />
+
+    <label for="pricePerUnit">Price Per Unit (€):</label>
+    <input type="number" id="pricePerUnit" name="pricePerUnit" required />
+
+    <button type="submit">Add Installation</button>
+</form>
+
+<script>
+    document.getElementById("installationForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const installationData = {
+            type: document.getElementById("type").value,
+            output: parseFloat(document.getElementById("output").value),
+            setting_up_time_per_unit: parseFloat(document.getElementById("settingUpTimePerUnit").value),
+            price_per_unit: parseFloat(document.getElementById("pricePerUnit").value),
+        };
+
+        try {
+            const response = await fetch("http://localhost:8080/company/addInstallation", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(installationData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert("Installation added successfully!");
+                // Optionally clear the form after successful submission
+                document.getElementById("installationForm").reset();
+            } else {
+                const error = await response.json();
+                alert("Failed to add installation: " + (error.message || "An error occurred"));
+            }
+        } catch (err) {
+            console.error("Error while adding installation:", err);
+            alert("An error occurred. Please try again later." + err);
+        }
+    });
+</script>
+</body>
+</html>
