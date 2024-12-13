@@ -18,10 +18,14 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final CompanyService companyService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(CompanyService companyService) {
+    private final CompanyService companyService;
+    private final AspNetIdentityPasswordVerifier passwordVerifier;
+
+    public AuthController(CompanyService companyService, AspNetIdentityPasswordVerifier passwordVerifier) {
         this.companyService = companyService;
+        this.passwordVerifier = passwordVerifier;
     }
 
     @PostMapping("/login")
@@ -29,18 +33,21 @@ public class AuthController {
         Optional<Company> company = companyService.findCompanyByEmail(loginRequest.getEmail());
 
         if (company.isEmpty() || !AspNetIdentityPasswordVerifier.verifyPassword(loginRequest.getPassword(), company.get().getPasswordHash())) {
+            logger.warn("Invalid login attempt for email: {}", loginRequest.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
         session.setAttribute("companyCode", company.get().getCompanyCode());
         session.setAttribute("email", company.get().getEmail());
+        logger.info("Successful login for email: {}", loginRequest.getEmail());
 
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(new SuccessResponse("Login successful"));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
-        return ResponseEntity.ok("Logout successful");
+        logger.info("Session invalidated successfully");
+        return ResponseEntity.ok(new SuccessResponse("Logout successful"));
     }
 }

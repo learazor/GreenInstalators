@@ -9,19 +9,34 @@ import java.util.Objects;
 @Table(name = "companyinfo")
 public class CompanyInfo implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     @Id
-    @Column(name = "company_code")
+    @Column(name = "company_code", nullable = false)
     private String companyCode;
 
+    @Column(name = "name", nullable = false)
     private String name;
+    
+    @Column(name = "country")
     private String country;
+    
+    @Column(name = "postal_code")
     private String postal_code;
+    
+    @Column(name = "price_per_distance_unit")
     private double price_per_distance_unit;
 
     //default constructor for JPA
     protected CompanyInfo() {}
 
     public CompanyInfo(String companyCode, String name, String country, String postal_code, double price_per_distance_unit) {
+        if (companyCode == null || companyCode.isEmpty()) {
+            throw new IllegalArgumentException("Company code cannot be null or empty");
+        }
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
         this.companyCode = companyCode;
         this.name = name;
         this.country = country;
@@ -61,4 +76,15 @@ public class CompanyInfo implements Serializable {
     public int hashCode() {
         return Objects.hash(companyCode);
     }
+    
+    @Override
+        public String toString() {
+            return "CompanyInfo{" +
+                    "companyCode='" + companyCode + '\'' +
+                    ", name='" + name + '\'' +
+                    ", country='" + country + '\'' +
+                    ", postal code='" + postal_code + '\'' +
+                    ", price per distanceUnit=" + price_per_distance_unit +
+                    '}';
+        }
 }
