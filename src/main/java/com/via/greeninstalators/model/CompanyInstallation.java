@@ -21,7 +21,7 @@ public class CompanyInstallation implements Serializable {
     private double price_per_unit;
 
     //for JPA
-    protected CompanyInstallation() {
+    public CompanyInstallation() {
     }
 
 

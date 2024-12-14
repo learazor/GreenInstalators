@@ -19,7 +19,7 @@ public class CompanyInfo implements Serializable {
     private double price_per_distance_unit;
 
     //default constructor for JPA
-    protected CompanyInfo() {}
+    public CompanyInfo() {}
 
     public CompanyInfo(String companyCode, String name, String country, String postal_code, double price_per_distance_unit) {
         this.companyCode = companyCode;
@@ -60,5 +60,10 @@ public class CompanyInfo implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(companyCode);
+    }
+
+    public void setCompanyCode(String companyCode)
+    {
+        this.companyCode = companyCode;
     }
 }
