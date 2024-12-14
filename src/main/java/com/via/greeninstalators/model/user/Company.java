@@ -5,19 +5,26 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
+
 @Entity
 @Table(name = "\"AspNetUsers\"")
-public class Company {
+public class Company implements Serializable {
 
     @Id
-    @Column(name = "\"Id\"")
+    @Column(name = "\"Id\"", nullable = false, unique = true)
     private String Id;
 
-    @Column(name = "\"Email\"")
+    @Column(name = "\"Email\"", nullable = false, unique = true)
     private String Email;
-    @Column(name = "\"PasswordHash\"")
+
+    @Column(name = "\"PasswordHash\"", nullable = false)
     private String PasswordHash;
-    @Column(name = "\"CompanyCode\"")
+
+    @Column(name = "\"CompanyCode\"", nullable = false)
     private String CompanyCode;
 
     public String getId() {
@@ -50,5 +57,27 @@ public class Company {
 
     public void setCompanyCode(String companyCode) {
         this.CompanyCode = companyCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Company company = (Company) o;
+        return Objects.equals(id, company.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "id='" + Id + '\'' +
+                ", email='" + Email + '\'' +
+                ", company code='" + CompanyCode + '\'' +
+                '}';
     }
 }

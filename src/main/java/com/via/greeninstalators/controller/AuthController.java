@@ -5,6 +5,7 @@ import com.via.greeninstalators.model.user.LoginRequest;
 import com.via.greeninstalators.service.AspNetIdentityPasswordVerifier;
 import com.via.greeninstalators.service.CompanyService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,15 +14,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final CompanyService companyService;
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(CompanyService companyService) {
+    private final CompanyService companyService;
+    private final AspNetIdentityPasswordVerifier passwordVerifier;
+
+    public AuthController(CompanyService companyService, AspNetIdentityPasswordVerifier passwordVerifier) {
         this.companyService = companyService;
+        this.passwordVerifier = passwordVerifier;
     }
 
     @PostMapping("/login")
@@ -29,18 +35,21 @@ public class AuthController {
         Optional<Company> company = companyService.findCompanyByEmail(loginRequest.getEmail());
 
         if (company.isEmpty() || !AspNetIdentityPasswordVerifier.verifyPassword(loginRequest.getPassword(), company.get().getPasswordHash())) {
+            logger.warning("Invalid login attempt for email: {}");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
         session.setAttribute("companyCode", company.get().getCompanyCode());
         session.setAttribute("email", company.get().getEmail());
+        logger.info("Successful login for email: {}");
 
-        return ResponseEntity.ok("Login successful");
+        return ResponseEntity.ok(new SuccessResponse("Login successful"));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         session.invalidate();
-        return ResponseEntity.ok("Logout successful");
+        logger.info("Session invalidated successfully");
+        return ResponseEntity.ok(new SuccessResponse("Logout successful"));
     }
 }

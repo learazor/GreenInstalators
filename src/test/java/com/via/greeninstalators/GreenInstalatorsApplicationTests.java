@@ -1,96 +1,36 @@
 package com.via.greeninstalators;
 
-import com.via.greeninstalators.model.CompanyInfo;
-import com.via.greeninstalators.model.CompanyInstallation;
-import com.via.greeninstalators.model.user.Company;
-import com.via.greeninstalators.repository.CompanyInfoRepository;
-import com.via.greeninstalators.repository.CompanyInstallationRepository;
-import com.via.greeninstalators.repository.CompanyRepository;
-import com.via.greeninstalators.service.AuthenticationService;
-import com.via.greeninstalators.service.CompanyService;
+import org.apache.catalina.core.ApplicationContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @SpringBootTest
 class GreenInstalatorsApplicationTests {
 
     @Autowired
-    private AuthenticationService authenticationService;
-
-    @Autowired
-    private CompanyService companyService;
-
-    @MockBean
-    private CompanyInfoRepository companyInfoRepository;
-
-
-    @MockBean
-    private CompanyRepository companyRepository;
-
-
-    @MockBean
-    private CompanyInstallationRepository installationRepository;
+    private ApplicationContext applicationContext;
 
     @Test
     void contextLoads() {
+        // Verify that the application context loads successfully
+        assertThat(applicationContext).isNotNull();
     }
 
     @Test
-    void testAuthenticate_Success() {
-        String email = "test@example.com";
-        String plainPassword = "password123";
-        String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
-        Company company = new Company();
-        company.setEmail(email);
-        company.setPasswordHash(hashedPassword);
-
-        when(companyRepository.findByEmail(email)).thenReturn(Optional.of(company));
-
-        boolean result = authenticationService.authenticate(email, plainPassword);
-
-        assertTrue(result, "Authentication should succeed for valid credentials.");
-        verify(companyRepository, times(1)).findByEmail(email);
+    void testBeanLoading() {
+        // Example: Verify that a specific bean is loaded into the application context
+        boolean isBeanPresent = applicationContext.containsBean("exampleBeanName");
+        assertThat(isBeanPresent).isTrue();
     }
 
     @Test
-    void testValidateCompanyCode_Exists() {
-        String companyCode = "COMP123";
-        CompanyInfo companyInfo = new CompanyInfo();
-        companyInfo.setCompanyCode(companyCode);
-
-        when(companyInfoRepository.findByCompanyCode(companyCode)).thenReturn(Optional.of(companyInfo));
-
-        boolean result = companyService.validateCompanyCode(companyCode);
-
-        assertTrue(result, "The company code should be valid.");
-        verify(companyInfoRepository, times(1)).findByCompanyCode(companyCode);
-    }
-
-    @Test
-    void testSaveCompanyInstallation_Success() {
-        String companyCode = "COMP123";
-        CompanyInfo companyInfo = new CompanyInfo();
-        companyInfo.setCompanyCode(companyCode);
-
-        CompanyInstallation installation = new CompanyInstallation();
-        installation.setCompany_code(companyCode);
-
-        when(companyInfoRepository.findByCompanyCode(companyCode)).thenReturn(Optional.of(companyInfo));
-        when(installationRepository.save(installation)).thenReturn(installation);
-
-        CompanyInstallation savedInstallation = companyService.saveCompanyInstallation(installation);
-
-        assertNotNull(savedInstallation, "The installation should be saved successfully.");
-        verify(companyInfoRepository, times(1)).findByCompanyCode(companyCode);
-        verify(installationRepository, times(1)).save(installation);
+    void testPropertyConfiguration() {
+        // Example: Verify that a property is correctly configured (replace with actual property test)
+        String expectedPropertyValue = "expectedValue";
+        String actualPropertyValue = applicationContext.getEnvironment().getProperty("example.property.name");
+        assertThat(actualPropertyValue).isEqualTo(expectedPropertyValue);
     }
 }

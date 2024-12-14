@@ -21,11 +21,17 @@ public class CompanyInstallation implements Serializable {
     private double price_per_unit;
 
     //for JPA
-    public CompanyInstallation() {
+    protected CompanyInstallation() {
     }
 
+    public void setCompany_code(String companyCode) {
+        this.company_code = companyCode;
+    }
 
     public CompanyInstallation(String type, String company_code, double output, int setting_up_time_per_unit, double price_per_unit) {
+        if (output < 0 || setting_up_time_per_unit < 0 || price_per_unit < 0) {
+            throw new IllegalArgumentException("Output, setting up time per unit, and price per unit must be non-negative.");
+        }
         this.type = type;
         this.company_code = company_code;
         this.output = output;
@@ -37,39 +43,48 @@ public class CompanyInstallation implements Serializable {
         return type;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public String getCompanyCode() {
         return company_code;
+    }
+
+    public void setCompanyCode(String company_code) {
+        this.company_code = company_code;
     }
 
     public double getOutput() {
         return output;
     }
 
+    public void setOutput(double output) {
+        if (output < 0) {
+            throw new IllegalArgumentException("Output must be non-negative.");
+        }
+        this.output = output;
+    }
+
     public int getSettingUpTimePerUnit() {
         return setting_up_time_per_unit;
+    }
+
+    public void setSettingUpTimePerUnit(int setting_up_time_per_unit) {
+        if (setting_up_time_per_unit < 0) {
+            throw new IllegalArgumentException("Setting up time per unit must be non-negative.");
+        }
+        this.setting_up_time_per_unit = setting_up_time_per_unit;
     }
 
     public double getPricePerUnit() {
         return price_per_unit;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setCompany_code(String company_code) {
-        this.company_code = company_code;
-    }
-
-    public void setOutput(double output) {
-        this.output = output;
-    }
-
-    public void setSetting_up_time_per_unit(int setting_up_time_per_unit) {
-        this.setting_up_time_per_unit = setting_up_time_per_unit;
-    }
-
-    public void setPrice_per_unit(double price_per_unit) {
+    public void setPricePerUnit(double price_per_unit) {
+        if (price_per_unit < 0) {
+            throw new IllegalArgumentException("Price per unit must be non-negative.");
+        }
         this.price_per_unit = price_per_unit;
     }
 
@@ -84,5 +99,16 @@ public class CompanyInstallation implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(type, company_code);
+    }
+
+    @Override
+    public String toString() {
+        return "CompanyInstallation{" +
+                "type='" + type + '\'' +
+                ", company code='" + company_code + '\'' +
+                ", output=" + output +
+                ", time per unit=" + setting_up_time_per_unit +
+                ", price per unit=" + price_per_unit +
+                '}';
     }
 }

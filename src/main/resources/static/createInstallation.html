@@ -17,54 +17,80 @@
             display: block;
             margin: 10px 0;
         }
+        button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        input:focus, button:focus {
+            outline: 2px solid #007BFF;
+        }
+        @media (max-width: 600px) {
+            body {
+                margin: 20px;
+            }
+            form {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="logout-container">
     <button id="logoutButton">Logout</button>
 </div>
+<main>
+    <h1>Create Installation</h1>
+    <form id="installationForm">
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" required placeholder="Enter installation type" />
 
-<h1>Create Installation</h1>
-<form id="installationForm">
-    <label for="type">Type:</label>
-    <input type="text" id="type" name="type" required />
+        <label for="output">Output (kW):</label>
+        <input type="number" id="output" name="output" required min="0" step="0.01" placeholder="Enter output in kW" />
 
-    <label for="output">Output (kW):</label>
-    <input type="number" id="output" name="output" required />
+        <label for="settingUpTimePerUnit">Setting Up Time Per Unit (work days):</label>
+        <input type="number" id="settingUpTimePerUnit" name="settingUpTimePerUnit" required min="1" step="1" placeholder="Enter setup time" />
 
-    <label for="settingUpTimePerUnit">Setting Up Time Per Unit (work days):</label>
-    <input type="number" id="settingUpTimePerUnit" name="settingUpTimePerUnit" required />
+        <label for="pricePerUnit">Price Per Unit (€):</label>
+        <input type="number" id="pricePerUnit" name="pricePerUnit" required min="0" step="0.01" placeholder="Enter price per unit" />
 
-    <label for="pricePerUnit">Price Per Unit (€):</label>
-    <input type="number" id="pricePerUnit" name="pricePerUnit" required />
-
-    <button type="submit">Add Installation</button>
-</form>
-
+        <button type="submit">Add Installation</button>
+        <p id="formMessage" style="display:none;"></p>
+    </form>
+</main>
 <script>
+    // Centralized Fetch Function
+    async function fetchWithErrorHandling(url, options) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || "An error occurred");
+            }
+            return response.json();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    // Logout Functionality
     document.getElementById("logoutButton").addEventListener("click", async () => {
         try {
-            const response = await fetch("http://localhost:8080/auth/logout", {
+            await fetchWithErrorHandling("http://localhost:8080/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
-
-            if (response.ok) {
-                alert("Logout successful");
-                // Redirect to the login page
-                window.location.href = "login.html";
-            } else {
-                alert("Failed to logout. Please try again.");
-            }
+            alert("Logout successful");
+            window.location.href = "login.html";
         } catch (err) {
-            console.error("Error during logout:", err);
-            alert("An error occurred. Please try again later.");
+            alert("Failed to logout: " + err.message);
         }
     });
 
-
+    // Form Submission
     document.getElementById("installationForm").addEventListener("submit", async (event) => {
         event.preventDefault();
+        const formMessage = document.getElementById("formMessage");
 
         const installationData = {
             type: document.getElementById("type").value,
@@ -74,26 +100,19 @@
         };
 
         try {
-            const response = await fetch("http://localhost:8080/company/addInstallation", {
+            await fetchWithErrorHandling("http://localhost:8080/company/addInstallation", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(installationData),
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                alert("Installation added successfully");
-                //clear the form after success
-                document.getElementById("installationForm").reset();
-            } else {
-                const error = await response.json();
-                alert("Failed to add installation: " + (error.message || "An error occurred"));
-            }
+            formMessage.style.display = "block";
+            formMessage.textContent = "Installation added successfully!";
+            formMessage.style.color = "green";
+            document.getElementById("installationForm").reset();
         } catch (err) {
-            console.error("Error while adding installation:", err);
-            alert("An error occurred. Please try again later." + err);
+            formMessage.style.display = "block";
+            formMessage.textContent = "Failed to add installation: " + err.message;
+            formMessage.style.color = "red";
         }
     });
 </script>

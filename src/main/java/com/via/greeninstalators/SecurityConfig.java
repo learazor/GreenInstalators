@@ -1,5 +1,8 @@
 package com.via.greeninstalators;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,8 +10,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
+import javax.naming.AuthenticationException;
+import java.io.IOException;
+
 @Configuration
 public class SecurityConfig {
+
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/auth/login",
+            "/company/addInstallation",
+            "/login.html",
+            "/createInstallation.html"
+    };
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -18,46 +34,56 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/auth/login",
-                                "/company/addInstallation",
-                                "/login.html",
-                                "/createInstallation.html"
-                        ).permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable()) // Disable CSRF for simplicity
                 .formLogin(form -> form
-                        .successHandler((request, response, authentication) -> {
-                            response.setStatus(200);
-                            response.getWriter().write("Login successful");
-                        })
-                        .failureHandler((request, response, exception) -> {
-                            response.setStatus(401);
-                            response.getWriter().write("Invalid email or password");
-                        })
+                        .successHandler(this::onAuthenticationSuccess)
+                        .failureHandler(this::onAuthenticationFailure)
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(200);
-                            response.getWriter().write("Logout successful");
-                        })
+                        .logoutSuccessHandler(this::onLogoutSuccess)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(customAuthenticationEntryPoint())
                 );
 
         return http.build();
     }
 
+    private void onLogoutSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, org.springframework.security.core.Authentication authentication) {
+    }
+
+    private void onAuthenticationFailure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, org.springframework.security.core.AuthenticationException e) {
+    }
+
+    private void onAuthenticationSuccess(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, org.springframework.security.core.Authentication authentication) {
+    }
+
+    private void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().write("{\"message\": \"Login successful\"}");
+    }
+
+    private void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write("{\"error\": \"Invalid email or password\"}");
+    }
+
+    private void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().write("{\"message\": \"Logout successful\"}");
+    }
+
     private AuthenticationEntryPoint customAuthenticationEntryPoint() {
         return (request, response, authException) -> {
-            response.setStatus(401);
-            response.getWriter().write("Unauthorized access?");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"Unauthorized access\"}");
         };
     }
 

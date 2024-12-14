@@ -24,8 +24,13 @@ public class AuthenticationService {
     }
 
     public boolean authenticate(String email, String password) {
+        if (email == null || email.isBlank() || password == null || password.isBlank()) {
+            return false;
+        }
+
         Optional<Company> company = companyRepository.findByEmail(email);
         if (company.isEmpty()) {
+            BCrypt.checkpw("plain password", "hashed password to match time");
             return false;
         }
         return BCrypt.checkpw(password, company.get().getPasswordHash());
