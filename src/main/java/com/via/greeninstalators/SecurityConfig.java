@@ -25,7 +25,11 @@ public class SecurityConfig {
                                 "/auth/login",
                                 "/company/addInstallation",
                                 "/login.html",
-                                "/createInstallation.html"
+                                "/createInstallation.html",
+                                "/orders/company-orders",
+                                "company-orders.html",
+                                "/company/*",
+                                "/orders/company-orders"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

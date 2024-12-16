@@ -9,10 +9,12 @@
             font-family: Arial, sans-serif;
             margin: 50px;
         }
+
         form {
             max-width: 400px;
             margin: auto;
         }
+
         label, input, button {
             display: block;
             margin: 10px 0;
@@ -23,20 +25,23 @@
 <div class="logout-container">
     <button id="logoutButton">Logout</button>
 </div>
+<div class="navigation-buttons">
+    <button id="companyOrdersButton">Go to Company Orders</button>
+</div>
 
 <h1>Create Installation</h1>
 <form id="installationForm">
     <label for="type">Type:</label>
-    <input type="text" id="type" name="type" required />
+    <input type="text" id="type" name="type" required/>
 
     <label for="output">Output (kW):</label>
-    <input type="number" id="output" name="output" required />
+    <input type="number" id="output" name="output" required/>
 
     <label for="settingUpTimePerUnit">Setting Up Time Per Unit (work days):</label>
-    <input type="number" id="settingUpTimePerUnit" name="settingUpTimePerUnit" required />
+    <input type="number" id="settingUpTimePerUnit" name="settingUpTimePerUnit" required/>
 
     <label for="pricePerUnit">Price Per Unit (€):</label>
-    <input type="number" id="pricePerUnit" name="pricePerUnit" required />
+    <input type="number" id="pricePerUnit" name="pricePerUnit" required/>
 
     <button type="submit">Add Installation</button>
 </form>
@@ -51,7 +56,6 @@
 
             if (response.ok) {
                 alert("Logout successful");
-                // Redirect to the login page
                 window.location.href = "login.html";
             } else {
                 alert("Failed to logout. Please try again.");
@@ -60,6 +64,10 @@
             console.error("Error during logout:", err);
             alert("An error occurred. Please try again later.");
         }
+    });
+
+    document.getElementById("companyOrdersButton").addEventListener("click", () => {
+        window.location.href = "company-orders.html";
     });
 
 

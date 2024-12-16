@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="logout-container">
+    <button id="logoutButton">Logout</button>
+</div>
+<div class="navigation-buttons">
+    <button id="createInstallationButton">Go to Create Installation</button>
+</div>
+<h1>Company Orders</h1>
+<table id="ordersTable">
+    <thead>
+    <tr>
+        <th>Order ID</th>
+        <th>Client Email</th>
+        <th>Status</th>
+        <th>Total Cost (€)</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+    document.getElementById("createInstallationButton").addEventListener("click", () => {
+        window.location.href = "createInstallation.html";
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+        try {
+            const response = await fetch("http://localhost:8080/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                alert("Logout successful");
+                window.location.href = "login.html";
+            } else {
+                alert("Failed to logout. Please try again.");
+            }
+        } catch (err) {
+            console.error("Error during logout:", err);
+            alert("An error occurred. Please try again later.");
+        }
+    });
+
+    async function fetchOrders() {
+        try {
+            const response = await fetch("http://localhost:8080/orders/company-orders");
+            const orders = await response.json();
+            populateTable(orders);
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+            alert("Failed to load orders.");
+        }
+    }
+
+    function populateTable(orders) {
+        const tableBody = document.querySelector("#ordersTable tbody");
+        tableBody.innerHTML = ""; // Clear previous rows
+
+        orders.forEach(order => {
+            const row = `<tr>
+                    <td>${order.id}</td>
+                    <td>${order.clientEmail}</td>
+                    <td>${order.status}</td>
+                    <td>${order.totalCost}</td>
+                    <td>
+                        <button onclick="updateStatus('${order.id}', 'ACCEPTED')">Accept</button>
+                        <button onclick="updateStatus('${order.id}', 'CANCELED')">Cancel</button>
+                    </td>
+                </tr>`;
+            tableBody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    async function updateStatus(orderId, status) {
+        try {
+            const response = await fetch(`http://localhost:8080/orders/${status.toLowerCase()}?orderId=${orderId}`, {
+                method: "POST",
+                credentials: "include",
+            });
+
+            if (response.ok) {
+                alert(`Order status updated to ${status}`);
+                fetchOrders();
+            } else {
+                const error = await response.text();
+                alert("Failed to update order status: " + error);
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
+
+        // Initial load
+        await fetchOrders();
+    }
+</script>
+</body>
+</html>
